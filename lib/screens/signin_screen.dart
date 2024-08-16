@@ -26,12 +26,12 @@ class _SigninScreenState extends State<SigninScreen> {
             const SizedBox(
               height: 50,
             ),
-            myTextBox(title: 'Enter your Email'),
-            SizedBox(
+            const MyTextBox(title: 'Enter your Email'),
+            const SizedBox(
               height: 8,
             ),
-            myTextBox(title: 'Enter your password'),
-            SizedBox(
+            const MyTextBox(title: 'Enter your password'),
+            const SizedBox(
               height: 8,
             ),
             MyButton(

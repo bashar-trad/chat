@@ -36,7 +36,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 30,),
+              const SizedBox(height: 30,),
               MyButton(
                 color: Colors.yellow[900]!,
                 title: 'sing in',

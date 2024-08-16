@@ -16,14 +16,14 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Row(
           children: [
             Image.asset('images/chat_app.png', height: 35),
-            SizedBox(
+            const SizedBox(
               width: 10,
             ),
-            Text('MessageMe')
+            const Text('MessageMe')
           ],
         ),
         actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.close)),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.close)),
         ],
       ),
       body: SafeArea(
@@ -33,7 +33,7 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Container(),
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 border: Border(
                   top: BorderSide(
                     color: Colors.orange,
@@ -47,7 +47,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Expanded(
                     child: TextField(
                       onChanged: (value) {},
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         contentPadding:
                             EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                         hintText: 'Write your message here ......',

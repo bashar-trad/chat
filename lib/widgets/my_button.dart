@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 class MyButton extends StatelessWidget {
-  const MyButton({required this.color,required this.title,required this.onPressed});
+  const MyButton({super.key, required this.color,required this.title,required this.onPressed});
 
   final Color color;
   final String title;
@@ -17,7 +17,7 @@ class MyButton extends StatelessWidget {
         minWidth: 200,
         height: 42,
         child: Text(title,
-        style: TextStyle(color: Colors.white),),
+        style: const TextStyle(color: Colors.white),),
         ),
       ),
     );
