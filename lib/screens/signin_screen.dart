@@ -10,6 +10,21 @@ class SigninScreen extends StatefulWidget {
 }
 
 class _SigninScreenState extends State<SigninScreen> {
+  String _email = '';
+  String _password = '';
+
+  void _handleEmailChanged(String email) {
+    setState(() {
+      _email = email;
+    });
+  }
+
+  void _handlePasswordChanged(String password) {
+    setState(() {
+      _password = password;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,16 +41,29 @@ class _SigninScreenState extends State<SigninScreen> {
             const SizedBox(
               height: 50,
             ),
-            const MyTextBox(title: 'Enter your Email'),
+            MyTextBox(
+              title: 'Enter your Email',
+              onChanged: _handleEmailChanged,
+            ),
             const SizedBox(
               height: 8,
             ),
-            const MyTextBox(title: 'Enter your password'),
+            MyTextBox(
+              title: 'Enter your password',
+              onChanged: _handlePasswordChanged,
+              obscureText: true,
+            ),
             const SizedBox(
               height: 8,
             ),
             MyButton(
-                color: Colors.yellow[900]!, title: 'Sign in', onPressed: () {}),
+              color: Colors.yellow[900]!,
+              title: 'Sign in',
+              onPressed: () {
+                print('Email: $_email');
+                print('Password: $_password');
+              },
+            ),
           ],
         ),
       ),

@@ -10,6 +10,21 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  String _email = '';
+  String _password = '';
+
+  void _handleEmailChanged(String email) {
+    setState(() {
+      _email = email;
+    });
+  }
+
+  void _handlePasswordChanged(String password) {
+    setState(() {
+      _password = password;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,16 +41,29 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             const SizedBox(
               height: 50,
             ),
-            const MyTextBox(title: 'Enter your Email'),
+            MyTextBox(
+              title: 'Enter your Email',
+              onChanged: _handleEmailChanged,
+            ),
             const SizedBox(
               height: 8,
             ),
-            const MyTextBox(title: 'Enter your password'),
+            MyTextBox(
+              title: 'Enter your password',
+              onChanged: _handlePasswordChanged,
+              obscureText: true,
+            ),
             const SizedBox(
               height: 8,
             ),
             MyButton(
-                color: Colors.blue[900]!, title: 'Register', onPressed: () {}),
+              color: Colors.blue[900]!,
+              title: 'Register',
+              onPressed: () {
+                print('Email: $_email');
+                print('Password: $_password');
+              },
+            ),
           ],
         ),
       ),
