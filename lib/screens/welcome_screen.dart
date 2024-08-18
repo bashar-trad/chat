@@ -40,13 +40,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               MyButton(
                 color: Colors.yellow[900]!,
                 title: 'sing in',
-                onPressed: (){},
+                onPressed: (){
+                  Navigator.pushNamed(context, 'signin_screen');
+                },
               ),
              
               MyButton(
                 color: Colors.blue[800]!,
                 title: 'Register',
-                onPressed: (){},
+                onPressed: (){
+                  Navigator.pushNamed(context, 'registration_screen');
+                },
               ),
             ],
           ),
