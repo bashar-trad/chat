@@ -44,6 +44,7 @@ class _SigninScreenState extends State<SigninScreen> {
             MyTextBox(
               title: 'Enter your Email',
               onChanged: _handleEmailChanged,
+              keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(
               height: 8,

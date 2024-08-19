@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class MyTextBox extends StatelessWidget {
-  const MyTextBox({super.key, required this.title ,required this.onChanged ,this.obscureText = false});
+  const MyTextBox({super.key, required this.title ,required this.onChanged ,this.obscureText = false,this.keyboardType=TextInputType.text});
   final String title;
   final void Function(String) onChanged;
   final bool obscureText;
+  final TextInputType keyboardType;
   @override
   Widget build(BuildContext context) {
     return TextField(
       textAlign: TextAlign.center,
       onChanged: onChanged,
+      keyboardType: keyboardType,
       obscureText: obscureText,
       decoration: InputDecoration(
         hintText: title,

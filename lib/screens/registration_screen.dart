@@ -1,5 +1,5 @@
-import 'package:chat_app/widgets/my_textfield.dart';
 import 'package:chat_app/widgets/my_button.dart';
+import 'package:chat_app/widgets/my_textfield.dart';
 import 'package:flutter/material.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -44,6 +44,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             MyTextBox(
               title: 'Enter your Email',
               onChanged: _handleEmailChanged,
+              keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(
               height: 8,
