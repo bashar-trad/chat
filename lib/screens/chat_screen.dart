@@ -44,7 +44,13 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.close)),
+          IconButton(
+            onPressed: () {
+              _auth.signOut();
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.close),
+          ),
         ],
       ),
       body: SafeArea(

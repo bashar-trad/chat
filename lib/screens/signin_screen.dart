@@ -1,6 +1,7 @@
 import 'package:chat_app/widgets/my_button.dart';
 import 'package:chat_app/widgets/my_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});
@@ -10,6 +11,7 @@ class SigninScreen extends StatefulWidget {
 }
 
 class _SigninScreenState extends State<SigninScreen> {
+  final _auth = FirebaseAuth.instance;
   String _email = '';
   String _password = '';
 
@@ -60,9 +62,16 @@ class _SigninScreenState extends State<SigninScreen> {
             MyButton(
               color: Colors.yellow[900]!,
               title: 'Sign in',
-              onPressed: () {
-                print('Email: $_email');
-                print('Password: $_password');
+              onPressed: () async {
+                try {
+                  final user = await _auth.signInWithEmailAndPassword(
+                      email: _email, password: _password);
+                  if (user != null) {
+                    Navigator.pushNamed(context, 'chat_screen');
+                  }
+                } catch (e) {
+                  print(e);
+                }
               },
             ),
           ],
