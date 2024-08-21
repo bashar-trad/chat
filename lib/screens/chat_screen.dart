@@ -2,18 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+
 final _firestore = FirebaseFirestore.instance;
+late User signedInUser;
+
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
-
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final messageTextController=TextEditingController();
+  final messageTextController = TextEditingController();
   final _auth = FirebaseAuth.instance;
-  late User signedInUser;
+
   String? messagText;
   @override
   void initState() {
@@ -30,14 +32,6 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } catch (e) {
       print(e);
-    }
-  }
-
-  void messageStreams() async {
-    await for (var snapshot in _firestore.collection('messages').snapshots()) {
-      for (var message in snapshot.docs) {
-        print(message.data());
-      }
     }
   }
 
@@ -103,6 +97,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       _firestore.collection('messages').add({
                         'text': messagText,
                         'sender': signedInUser.email,
+                        'time':FieldValue.serverTimestamp(),
                       });
                     },
                     child: Text(
@@ -126,66 +121,82 @@ class _ChatScreenState extends State<ChatScreen> {
 
 class MessageStreamBuilder extends StatelessWidget {
   const MessageStreamBuilder({super.key});
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-              stream: _firestore.collection('messages').snapshots(),
-              builder: (context, snapshot) {
-                List<MessageLine> messageWidgets = [];
-                if (!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.blue,
-                    ),
-                  );
-                }
-                final messages = snapshot.data!.docs;
-                for (var message in messages) {
-                  final messageText = message.get('text');
-                  final messageSender = message.get('sender');
-                  final messageWidget = MessageLine(
-                    sender: messageSender,
-                    text: messageText,
-                  );
-                  messageWidgets.add(messageWidget);
-                }
-                return Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-                    children: messageWidgets,
-                  ),
-                );
-              },
-            );
+      stream: _firestore.collection('messages').orderBy('time').snapshots(),
+      builder: (context, snapshot) {
+        List<MessageLine> messageWidgets = [];
+        if (!snapshot.hasData) {
+          return const Center(
+            child: CircularProgressIndicator(
+              backgroundColor: Colors.blue,
+            ),
+          );
+        }
+        final messages = snapshot.data!.docs.reversed;
+        for (var message in messages) {
+          final messageText = message.get('text');
+          final messageSender = message.get('sender');
+          final currentUser = signedInUser.email;
+          final messageWidget = MessageLine(
+            sender: messageSender,
+            text: messageText,
+            isMe: currentUser == messageSender,
+          );
+          messageWidgets.add(messageWidget);
+        }
+        return Expanded(
+          child: ListView(
+            reverse: true,
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+            children: messageWidgets,
+          ),
+        );
+      },
+    );
   }
 }
 
 class MessageLine extends StatelessWidget {
-  const MessageLine({this.text, this.sender, super.key});
-
+  const MessageLine({this.text, this.sender, required this.isMe, super.key});
   final String? sender;
   final String? text;
-
+  final bool isMe;
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(10.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment:
+            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          Text('$sender',
-           style: TextStyle(fontSize: 12, color: Colors.black45),
-           ),
+          Text(
+            '$sender',
+            style: TextStyle(fontSize: 12, color: Colors.yellow[900]),
+          ),
           Material(
             elevation: 5,
-            borderRadius: BorderRadius.circular(30),
-            color: Colors.blue[800],
+            borderRadius: isMe
+                ? const BorderRadius.only(
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30),
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.zero,
+                  )
+                : const BorderRadius.only(
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30),
+                    topLeft: Radius.zero,
+                    topRight: Radius.circular(30),
+                  ),
+            color: isMe ? Colors.blue[800] : Colors.white,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Text(
                 '$text',
-                style: TextStyle(fontSize: 15, color: Colors.white),
+                style: TextStyle(
+                    fontSize: 15, color: isMe ? Colors.white : Colors.black45),
               ),
             ),
           ),
