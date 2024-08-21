@@ -18,15 +18,18 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   bool showSpinner = false;
   bool showEmailError = false;
   bool showPasswordError = false;
+
   void _handleEmailChanged(String email) {
     setState(() {
       _email = email;
+      showEmailError = _email.isEmpty;
     });
   }
 
   void _handlePasswordChanged(String password) {
     setState(() {
       _password = password;
+      showPasswordError = _password.isEmpty;
     });
   }
 
@@ -53,9 +56,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 onChanged: _handleEmailChanged,
                 keyboardType: TextInputType.emailAddress,
               ),
-              const SizedBox(
-                height: 8,
-              ),
               Visibility(
                 visible: showEmailError,
                 child: const Padding(
@@ -69,13 +69,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                 ),
               ),
+              const SizedBox(
+                height: 8,
+              ),
               MyTextBox(
                 title: 'Enter your password',
                 onChanged: _handlePasswordChanged,
                 obscureText: true,
-              ),
-              const SizedBox(
-                height: 8,
               ),
               Visibility(
                 visible: showPasswordError,
@@ -90,6 +90,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                 ),
               ),
+              const SizedBox(
+                height: 8,
+              ),
               MyButton(
                 color: Colors.blue[900]!,
                 title: 'Register',
@@ -97,6 +100,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   setState(() {
                     showSpinner = true;
                   });
+
+                  // التحقق من صحة الإدخال
                   if (_email.isEmpty || _password.isEmpty) {
                     setState(() {
                       showSpinner = false;
@@ -105,23 +110,53 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     });
                     return;
                   }
+
                   try {
                     await _auth.createUserWithEmailAndPassword(
                         email: _email, password: _password);
-                    Navigator.pushNamed(context, 'chat_screen');
+                    Navigator.pushNamedAndRemoveUntil(context, 'chat_screen',
+                        (Route<dynamic> route) => false);
+                  } on FirebaseAuthException catch (e) {
+                    // التعامل مع الأخطاء الخاصة بـ Firebase
                     setState(() {
                       showSpinner = false;
+                      if (e.code == 'weak-password') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('The password is too weak.'),
+                          ),
+                        );
+                      } else if (e.code == 'email-already-in-use') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                'The account already exists for that email.'),
+                          ),
+                        );
+                      } else if (e.code == 'invalid-email') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('The email address is not valid.'),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error: ${e.message}'),
+                          ),
+                        );
+                      }
                     });
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Error: ${e.toString()}'),
-                      ),
-                    );
-                  } finally {
+                    // التعامل مع الأخطاء العامة
                     setState(() {
                       showSpinner = false;
                     });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Unexpected error: ${e.toString()}'),
+                      ),
+                    );
                   }
                 },
               ),

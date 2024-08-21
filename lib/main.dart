@@ -13,7 +13,7 @@ void main() async{
 
 class MyApp extends StatelessWidget {
   final _auth=FirebaseAuth.instance;
- // const MyApp({super.key});
+   MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -25,10 +25,10 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: _auth.currentUser!=null? 'chat_screen':'welcome_screen',
       routes: {
-        'welcome_screen': (context)=>WelcomeScreen(), 
-        'chat_screen': (context)=>ChatScreen(),
-        'registration_screen': (context)=>RegistrationScreen(),
-        'signin_screen': (context)=>SigninScreen(),
+        'welcome_screen': (context)=>const WelcomeScreen(), 
+        'chat_screen': (context)=>const ChatScreen(),
+        'registration_screen': (context)=>const RegistrationScreen(),
+        'signin_screen': (context)=>const SigninScreen(),
 
       },
     );

@@ -14,8 +14,9 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final messageTextController = TextEditingController();
   final _auth = FirebaseAuth.instance;
-
   String? messagText;
+  bool isSending = false; // Track the sending state
+
   @override
   void initState() {
     super.initState();
@@ -23,14 +24,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void getCurrentUser() {
-    try {
-      final user = _auth.currentUser;
-      if (user != null) {
-        signedInUser = user;
-        print(signedInUser.email);
-      }
-    } catch (e) {
-      print(e);
+    final user = _auth.currentUser;
+    if (user != null) {
+      signedInUser = user;
     }
   }
 
@@ -42,10 +38,8 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Row(
           children: [
             Image.asset('images/chat_app.png', height: 35),
-            const SizedBox(
-              width: 10,
-            ),
-            const Text('MessageMe')
+            const SizedBox(width: 10),
+            const Text('MessageMe'),
           ],
         ),
         actions: [
@@ -67,14 +61,14 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            MessageStreamBuilder(),
+            const MessageStreamBuilder(),
             Container(
+              margin: const EdgeInsets.all(4),
               child: Card(
-                color:Colors.white,
+                color: Colors.white,
                 elevation: 5,
-                margin: EdgeInsets.all(4),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(300),
+                  borderRadius: BorderRadius.circular(30),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -88,7 +82,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         decoration: const InputDecoration(
                           contentPadding: EdgeInsets.symmetric(
                               vertical: 10, horizontal: 20),
-                          hintText: 'Write your message here ......',
+                          hintText: 'اكتب رسالتك هنا ......',
                           border: InputBorder.none,
                         ),
                       ),
@@ -96,22 +90,40 @@ class _ChatScreenState extends State<ChatScreen> {
                     IconButton(
                       icon: Icon(
                         Icons.send_rounded,
-                        color: Colors.blue[800], 
+                        color: Colors.blue[800],
                         size: 24,
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         if (messagText != null &&
                             messagText!.trim().isNotEmpty) {
-                          _firestore.collection('messages').add({
-                            'text': messagText,
-                            'sender': signedInUser.email,
-                            'time': FieldValue.serverTimestamp(),
+                          setState(() {
+                            isSending = true;
                           });
+
+                          try {
+                            await _firestore.collection('messages').add({
+                              'text': messagText,
+                              'sender': signedInUser.email,
+                              'time': FieldValue.serverTimestamp(),
+                            });
+
+                            messageTextController.clear();
+                            messagText = '';
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                    'خطأ أثناء إرسال الرسالة: ${e.toString()}'),
+                              ),
+                            );
+                          } finally {
+                            setState(() {
+                              isSending = false;
+                            });
+                          }
                         }
-                        messageTextController.clear();
-                        messagText = '';
                       },
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -153,7 +165,7 @@ class MessageStreamBuilder extends StatelessWidget {
         return Expanded(
           child: ListView(
             reverse: true,
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
             children: messageWidgets,
           ),
         );
@@ -170,7 +182,7 @@ class MessageLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(10.0),
       child: Column(
         crossAxisAlignment:
             isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,

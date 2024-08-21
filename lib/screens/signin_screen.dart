@@ -16,15 +16,20 @@ class _SigninScreenState extends State<SigninScreen> {
   String _email = '';
   String _password = '';
   bool showSpinner = false;
+  bool showEmailError = false;
+  bool showPasswordError = false;
+
   void _handleEmailChanged(String email) {
     setState(() {
       _email = email;
+      showEmailError = _email.isEmpty;
     });
   }
 
   void _handlePasswordChanged(String password) {
     setState(() {
       _password = password;
+      showPasswordError = _password.isEmpty;
     });
   }
 
@@ -51,6 +56,19 @@ class _SigninScreenState extends State<SigninScreen> {
                 onChanged: _handleEmailChanged,
                 keyboardType: TextInputType.emailAddress,
               ),
+              Visibility(
+                visible: showEmailError,
+                child: const Padding(
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    'Email is required.',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(
                 height: 8,
               ),
@@ -62,6 +80,19 @@ class _SigninScreenState extends State<SigninScreen> {
               const SizedBox(
                 height: 8,
               ),
+              Visibility(
+                visible: showPasswordError,
+                child: const Padding(
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    'Password is required.',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
               MyButton(
                 color: Colors.yellow[900]!,
                 title: 'Sign in',
@@ -69,15 +100,62 @@ class _SigninScreenState extends State<SigninScreen> {
                   setState(() {
                     showSpinner = true;
                   });
+
+                  // التحقق من صحة الإدخال
+                  if (_email.isEmpty || _password.isEmpty) {
+                    setState(() {
+                      showSpinner = false;
+                      showEmailError = _email.isEmpty;
+                      showPasswordError = _password.isEmpty;
+                    });
+                    return;
+                  }
+
                   try {
                     await _auth.signInWithEmailAndPassword(
                         email: _email, password: _password);
-                    Navigator.pushNamed(context, 'chat_screen');
+                    Navigator.pushNamedAndRemoveUntil(context, 'chat_screen',
+                        (Route<dynamic> route) => false);
+                  } on FirebaseAuthException catch (e) {
                     setState(() {
                       showSpinner = false;
                     });
+
+                    // التعامل مع الأخطاء الخاصة بـ Firebase
+                    String errorMessage;
+                    switch (e.code) {
+                      case 'user-not-found':
+                        errorMessage = 'No user found for that email.';
+                        break;
+                      case 'wrong-password':
+                        errorMessage = 'Wrong password provided for that user.';
+                        break;
+                      case 'invalid-email':
+                        errorMessage = 'The email address is not valid.';
+                        break;
+                      case 'too-many-requests':
+                        errorMessage =
+                            'Access to this account has been temporarily disabled due to many failed login attempts. Please try again later or reset your password.';
+                        break;
+                      default:
+                        errorMessage = 'Error: ${e.message}';
+                        break;
+                    }
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(errorMessage),
+                      ),
+                    );
                   } catch (e) {
-                    print(e);
+                    setState(() {
+                      showSpinner = false;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Unexpected error: ${e.toString()}'),
+                      ),
+                    );
                   }
                 },
               ),
