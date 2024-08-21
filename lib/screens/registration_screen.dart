@@ -16,6 +16,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String _email = '';
   String _password = '';
   bool showSpinner = false;
+  bool showEmailError = false;
+  bool showPasswordError=false;
   void _handleEmailChanged(String email) {
     setState(() {
       _email = email;
@@ -54,6 +56,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               const SizedBox(
                 height: 8,
               ),
+              Visibility(
+                visible: showEmailError,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    'Email is required.',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
               MyTextBox(
                 title: 'Enter your password',
                 onChanged: _handlePasswordChanged,
@@ -62,6 +77,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               const SizedBox(
                 height: 8,
               ),
+              Visibility(
+                visible: showPasswordError,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    'Password is required.',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+              
               MyButton(
                 color: Colors.blue[900]!,
                 title: 'Register',
@@ -69,6 +98,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   setState(() {
                     showSpinner = true;
                   });
+                  if (_email.isEmpty || _password.isEmpty) {
+                    setState(() {
+                      showSpinner = false;
+                      showEmailError = _email.isEmpty;
+                      showPasswordError = _password.isEmpty;
+                    });
+                    return;
+                  }
                   try {
                     await _auth.createUserWithEmailAndPassword(
                         email: _email, password: _password);
@@ -77,7 +114,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       showSpinner = false;
                     });
                   } catch (e) {
-                    print(e);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error: ${e.toString()}'),
+                      ),
+                    );
+                  } finally {
+                    setState(() {
+                      showSpinner = false;
+                    });
                   }
                 },
               ),

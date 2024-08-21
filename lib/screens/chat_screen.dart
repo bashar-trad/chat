@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart';
 
 final _firestore = FirebaseFirestore.instance;
 late User signedInUser;
@@ -53,7 +52,11 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
             onPressed: () {
               _auth.signOut();
-              Navigator.pop(context);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                'welcome_screen',
+                (Route<dynamic> route) => false,
+              );
             },
             icon: const Icon(Icons.close),
           ),
@@ -66,52 +69,53 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             MessageStreamBuilder(),
             Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(
-                    color: Colors.orange,
-                    width: 2,
-                  ),
+              child: Card(
+                color:Colors.white,
+                elevation: 5,
+                margin: EdgeInsets.all(4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(300),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: messageTextController,
+                        onChanged: (value) {
+                          messagText = value;
+                        },
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 20),
+                          hintText: 'Write your message here ......',
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.send_rounded,
+                        color: Colors.blue[800], 
+                        size: 24,
+                      ),
+                      onPressed: () {
+                        if (messagText != null &&
+                            messagText!.trim().isNotEmpty) {
+                          _firestore.collection('messages').add({
+                            'text': messagText,
+                            'sender': signedInUser.email,
+                            'time': FieldValue.serverTimestamp(),
+                          });
+                        }
+                        messageTextController.clear();
+                        messagText = '';
+                      },
+                    )
+                  ],
                 ),
               ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: messageTextController,
-                      onChanged: (value) {
-                        messagText = value;
-                      },
-                      decoration: const InputDecoration(
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                        hintText: 'Write your message here ......',
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      messageTextController.clear();
-                      _firestore.collection('messages').add({
-                        'text': messagText,
-                        'sender': signedInUser.email,
-                        'time':FieldValue.serverTimestamp(),
-                      });
-                    },
-                    child: Text(
-                      'Send',
-                      style: TextStyle(
-                        color: Colors.blue[800],
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
+            ),
           ],
         ),
       ),
