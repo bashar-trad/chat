@@ -17,7 +17,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String _password = '';
   bool showSpinner = false;
   bool showEmailError = false;
-  bool showPasswordError=false;
+  bool showPasswordError = false;
   void _handleEmailChanged(String email) {
     setState(() {
       _email = email;
@@ -58,8 +58,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
               Visibility(
                 visible: showEmailError,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
+                child: const Padding(
+                  padding: EdgeInsets.only(top: 8.0),
                   child: Text(
                     'Email is required.',
                     style: TextStyle(
@@ -79,8 +79,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
               Visibility(
                 visible: showPasswordError,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
+                child: const Padding(
+                  padding: EdgeInsets.only(top: 8.0),
                   child: Text(
                     'Password is required.',
                     style: TextStyle(
@@ -90,7 +90,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                 ),
               ),
-              
               MyButton(
                 color: Colors.blue[900]!,
                 title: 'Register',
