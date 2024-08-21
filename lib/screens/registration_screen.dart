@@ -3,6 +3,7 @@ import 'package:chat_app/widgets/my_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
 
@@ -14,7 +15,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _auth = FirebaseAuth.instance;
   String _email = '';
   String _password = '';
-  bool showSpinner=false;
+  bool showSpinner = false;
   void _handleEmailChanged(String email) {
     setState(() {
       _email = email;
@@ -66,17 +67,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 title: 'Register',
                 onPressed: () async {
                   setState(() {
-                    showSpinner=true;
+                    showSpinner = true;
                   });
-
                   try {
-                    final newUser = await _auth.createUserWithEmailAndPassword(
+                    await _auth.createUserWithEmailAndPassword(
                         email: _email, password: _password);
                     Navigator.pushNamed(context, 'chat_screen');
                     setState(() {
-                      showSpinner=false;
+                      showSpinner = false;
                     });
-
                   } catch (e) {
                     print(e);
                   }

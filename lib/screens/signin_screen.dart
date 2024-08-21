@@ -3,6 +3,7 @@ import 'package:chat_app/widgets/my_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+
 class SigninScreen extends StatefulWidget {
   const SigninScreen({super.key});
 
@@ -14,7 +15,7 @@ class _SigninScreenState extends State<SigninScreen> {
   final _auth = FirebaseAuth.instance;
   String _email = '';
   String _password = '';
-  bool showSpinner=false;
+  bool showSpinner = false;
   void _handleEmailChanged(String email) {
     setState(() {
       _email = email;
@@ -66,17 +67,15 @@ class _SigninScreenState extends State<SigninScreen> {
                 title: 'Sign in',
                 onPressed: () async {
                   setState(() {
-                    showSpinner=true;
+                    showSpinner = true;
                   });
                   try {
-                    final user = await _auth.signInWithEmailAndPassword(
+                    await _auth.signInWithEmailAndPassword(
                         email: _email, password: _password);
-                    if (user != null) {
-                      Navigator.pushNamed(context, 'chat_screen');
-                      setState(() {
-                        showSpinner=false;
-                      });
-                    }
+                    Navigator.pushNamed(context, 'chat_screen');
+                    setState(() {
+                      showSpinner = false;
+                    });
                   } catch (e) {
                     print(e);
                   }
